@@ -1,41 +1,16 @@
+import importlib.util
 import os
-
-ENV_VARS_TRUE_VALUES = {"1", "ON", "YES"}
-ENV_VARS_TRUE_AND_AUTO_VALUES = ENV_VARS_TRUE_VALUES.union({"AUTO"})
-
-try:
-    USE_TF = os.environ.get("USE_TF", "AUTO").upper()
-    USE_TORCH = os.environ.get("USE_TORCH", "AUTO").upper()
-    if USE_TORCH in ENV_VARS_TRUE_AND_AUTO_VALUES and USE_TF not in ENV_VARS_TRUE_VALUES:
-        import torch
-
-        _torch_available = True  # pylint: disable=invalid-name
-    else:
-        _torch_available = False
-except ImportError:
-    _torch_available = False  # pylint: disable=invalid-name
-
-try:
-    USE_TF = os.environ.get("USE_TF", "AUTO").upper()
-    USE_TORCH = os.environ.get("USE_TORCH", "AUTO").upper()
-
-    if USE_TF in ENV_VARS_TRUE_AND_AUTO_VALUES and USE_TORCH not in ENV_VARS_TRUE_VALUES:
-        import tensorflow as tf
-
-        assert hasattr(tf, "__version__") and int(tf.__version__[0]) >= 2
-        _tf_available = True  # pylint: disable=invalid-name
-    else:
-        _tf_available = False
-except (ImportError, AssertionError):
-    _tf_available = False  # pylint: disable=invalid-name
 
 
 def is_torch_available():
-    return _torch_available
+    torch_spec = importlib.util.find_spec("torch")
+    return torch_spec is not None
 
 
 def is_tf_available():
-    return _tf_available
+    # Does not make a version check since it does not actually try to import it.
+    tf_spec = importlib.util.find_spec("tensorflow")
+    return tf_spec is not None
 
 
 PYTORCH_IMPORT_ERROR = """
