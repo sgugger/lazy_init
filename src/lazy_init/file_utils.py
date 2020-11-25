@@ -44,7 +44,8 @@ class _BaseLazyModule(ModuleType):
     """
     Module class that surfaces all objects but only performs associated imports when the objects are requested.
     """
-
+    # Very heavily inspired by optuna.integration._IntegrationModule
+    # https://github.com/optuna/optuna/blob/master/optuna/integration/__init__.py
     def __init__(self, name, import_structure):
         super().__init__(name)
         self._modules = set(import_structure.keys())
