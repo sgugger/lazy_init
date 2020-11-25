@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import TYPE_CHECKING
 from ..file_utils import _BaseLazyModule, is_torch_available, is_tf_available
 
 _import_structure = {}
@@ -10,16 +11,21 @@ if is_torch_available():
 if is_tf_available():
     _import_structure["model_tf"] = ["TFBertEmbeddings"]
 
+if TYPE_CHECKING:
+    if is_torch_available():
+        from .model_pt import BertEmbeddings  # NOQA
+    if is_tf_available():
+        from .model_tf import TFBertEmbeddings  # NOQA
+else:   
+    class _LazyModule(_BaseLazyModule):
+        """
+        Module class that surfaces all objects but only performs associated imports when the objects are requested.
+        """
+        __file__ = globals()["__file__"]
+        __path__ = [os.path.dirname(__file__)]
 
-class _LazyModule(_BaseLazyModule):
-    """
-    Module class that surfaces all objects but only performs associated imports when the objects are requested.
-    """
-    __file__ = globals()["__file__"]
-    __path__ = [os.path.dirname(__file__)]
+        def _get_module(self, module_name: str):
+            import importlib
+            return importlib.import_module("." + module_name, self.__name__)
 
-    def _get_module(self, module_name: str):
-        import importlib
-        return importlib.import_module("." + module_name, self.__name__)
-
-sys.modules[__name__] = _LazyModule(__name__, _import_structure)
+    sys.modules[__name__] = _LazyModule(__name__, _import_structure)

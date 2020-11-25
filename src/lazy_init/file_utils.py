@@ -56,6 +56,7 @@ class _BaseLazyModule(ModuleType):
         # Needed for autocompletion in an IDE
         self.__all__ = list(import_structure.keys()) + sum(import_structure.values(), [])
     
+    # Needed for autocompletion in an IDE
     def __dir__(self):
         return super().__dir__() + self.__all__
     
